@@ -19,6 +19,18 @@ data FType = FString
            | FList FType [Text] -- list of separator strings e.g. [",", ";"]
     deriving (Eq, Show)
 
+
+-- top level function
+
+toObject :: [FieldSpec] -> [Text] -> Value
+toObject ffs vs = object [ k .= v | (k,v) <- toPairs ffs vs ]
+
+toPairs :: [FieldSpec] -> [Text] -> [(Text, Value)]
+toPairs ffs vs =
+    let converters = map mkConverter ffs
+    in zipWith ($) converters vs
+
+
 mkConverter :: FieldSpec -> Text -> (Text, Value)
 mkConverter (FieldSpec name ftype) v = (name, conv ftype v)
 
@@ -29,7 +41,7 @@ conv _ "null" = Null
 conv _ "-" = Null
 conv _ "\\N" = Null
 conv FString v = String v
-conv FNumber v = Number (read . show . T.unpack $ v)
+conv FNumber v = Number (read . T.unpack $ v)
 conv FBool v = Bool $ case v of
                 "true" -> True
                 "t" -> True
