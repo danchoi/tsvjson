@@ -1,21 +1,23 @@
 module Core where
-import Data.Aeson
+import Control.Applicative
+import Data.Aeson hiding (Parser)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Data.Attoparsec.Text 
 import qualified Data.Attoparsec.Text as AT
 
--- functionsn for turning [FieldSpec] and [Text] to [(Text, Value)]
+-- functions for turning [FieldSpec] and [Text] to [(Text, Value)]
 
 data FieldSpec = FieldSpec {
     _name :: Text
   , _type :: FType
-  } deriving Show           
+  } deriving (Eq, Show)
 
 data FType = FString
            | FNumber
            | FBool
            | FList FType [Text] -- list of separator strings e.g. [",", ";"]
-    deriving Show           
+    deriving (Eq, Show)
 
 mkConverter :: FieldSpec -> Text -> (Text, Value)
 mkConverter (FieldSpec name ftype) v = (name, conv ftype v)
@@ -55,28 +57,62 @@ where type is
     string
     num
     bool
-    list:type:seps
+    list[:type[:seps]] -- defaults to string with comma sep
 
 If type is omitted, it is string.
 
     list:string:, 
-
     red,green,blue -> ["red", "green", "blue"]
 
     list:string:[,;]
-
     red,green;blue -> ["red", "green", "blue"]
 
     list:number:, 
-
     1,2,3 -> [1,2,3]
 
     list:string:, 
-
     "" -> []
-
 -}
 
+pFieldSpec :: Parser FieldSpec
+pFieldSpec = 
+    FieldSpec 
+      <$> pFieldName 
+      <*> (
+            (char ':' *> pFieldType)
+            <|>
+            (pure FString)
+          )
 
+pFieldName :: Parser Text
+pFieldName = takeWhile1 (notInClass ": ")
+
+pFieldType :: Parser FType
+pFieldType = choice [
+    string "string" *> pure FString
+  , string "num" *> pure FNumber
+  , string "bool" *> pure FBool
+  , string "list" *> pListType
+  ]
+
+pListType :: Parser FType
+pListType = 
+  FList 
+      <$> ( 
+            (char ':' *> pFieldType)
+            <|> 
+            pure FString
+          )
+      <*> (
+
+            (char ':' *> 
+              (mkSeps <$> (takeWhile1 (notInClass " ")))
+            )
+            <|> 
+            pure [","]
+          )
+
+mkSeps :: Text -> [Text]
+mkSeps = map T.singleton . T.unpack
 
 

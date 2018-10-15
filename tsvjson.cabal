@@ -41,5 +41,7 @@ test-suite tsvjson-test
                      , lens
                      , lens-aeson
                      , text
-  default-extensions:  OverloadedStrings, RecordWildCards
+  default-extensions:  OverloadedStrings
+                     , RecordWildCards
+                     , ExtendedDefaultRules
 
