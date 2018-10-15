@@ -3,35 +3,23 @@ import Data.Aeson
 import Data.Text (Text)
 import qualified Data.Text as T
 
+-- functionsn for turning [FieldSpec] and [Text] to [(Text, Value)]
 
-{-
-
-  tsv will come in as a series of [Text]
-
-  we need to combine that with [Spec]
-
-  to output Value (object with pairs)
-
-  Spec is 
-
--}
+data FieldSpec = FieldSpec {
+    _type :: FType
+  , _name :: Text
+  } deriving Show           
 
 data FType = FString
            | FNumber
            | FBool
            | FList FType [Text] -- list of separator strings e.g. [",", ";"]
-           
--- null or blank string always becomes Null
-
-
-data FieldSpec = FieldSpec {
-    _type :: FType
-  , _name :: Text
-  }
+    deriving Show           
 
 mkConverter :: FieldSpec -> Text -> (Text, Value)
 mkConverter (FieldSpec ftype name) v = (name, conv ftype v)
 
+-- null or blank string always becomes Null
 conv :: FType -> Text -> Value
 conv _ "" = Null
 conv _ "null" = Null
