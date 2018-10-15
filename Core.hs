@@ -2,12 +2,13 @@ module Core where
 import Data.Aeson
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Attoparsec.Text as AT
 
 -- functionsn for turning [FieldSpec] and [Text] to [(Text, Value)]
 
 data FieldSpec = FieldSpec {
-    _type :: FType
-  , _name :: Text
+    _name :: Text
+  , _type :: FType
   } deriving Show           
 
 data FType = FString
@@ -17,7 +18,7 @@ data FType = FString
     deriving Show           
 
 mkConverter :: FieldSpec -> Text -> (Text, Value)
-mkConverter (FieldSpec ftype name) v = (name, conv ftype v)
+mkConverter (FieldSpec name ftype) v = (name, conv ftype v)
 
 -- null or blank string always becomes Null
 conv :: FType -> Text -> Value
@@ -39,8 +40,43 @@ conv FBool v = Bool $ case v of
 conv (FList ftype seps) v = toJSON $ map (conv ftype) $ splitOnAll seps v
 
 splitOnAll :: [Text] -> Text -> [Text]
-splitOnAll seps v = foldr f seps [v]
+splitOnAll seps v = foldr f [v] seps
   where f sep acc = concatMap (T.splitOn sep) acc
           
+------------------------------------------------------------------------
+-- FieldSpec DSL parser
+
+{- FieldSpec as given on the command line
+
+    name[:type]
+
+where type is 
+
+    string
+    num
+    bool
+    list:type:seps
+
+If type is omitted, it is string.
+
+    list:string:, 
+
+    red,green,blue -> ["red", "green", "blue"]
+
+    list:string:[,;]
+
+    red,green;blue -> ["red", "green", "blue"]
+
+    list:number:, 
+
+    1,2,3 -> [1,2,3]
+
+    list:string:, 
+
+    "" -> []
+
+-}
+
+
 
 

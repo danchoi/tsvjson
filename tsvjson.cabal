@@ -26,5 +26,20 @@ executable tsvjson
                      , lens-aeson
                      , optparse-applicative
                      , text
-
   default-extensions:  OverloadedStrings, RecordWildCards
+
+test-suite tsvjson-test
+  type: exitcode-stdio-1.0
+  hs-source-dirs: . 
+  main-is: Test.hs
+  other-modules: Core
+  build-depends:       base >= 4.6 && <5
+                     , HUnit
+                     , aeson
+                     , attoparsec
+                     , bytestring
+                     , lens
+                     , lens-aeson
+                     , text
+  default-extensions:  OverloadedStrings, RecordWildCards
+
