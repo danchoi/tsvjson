@@ -27,16 +27,19 @@ data Options = Options {
 pOptions :: Parser Options
 pOptions = Options
     <$> switch (short 'H' <> help "Skip header row")
-    <*> many (argument readFieldSpec (metavar "[FIELDSPEC..]"))
+    <*> (
+          concat <$> 
+            many (argument readFieldSpec (metavar "[FIELDSPEC..]"))
+        )
 
 
 pOpts :: ParserInfo Options
 pOpts = info (helper <*> pOptions)
              (header "tsvjson" <> fullDesc)
 
-readFieldSpec :: ReadM FieldSpec
+readFieldSpec :: ReadM [FieldSpec]
 readFieldSpec = eitherReader $ \s -> 
-    case AT.parseOnly pFieldSpec (T.pack s) of
+    case AT.parseOnly (AT.sepBy1 pFieldSpec AT.skipSpace) (T.pack s) of
       Right x -> Right x
       Left err -> Left err
       

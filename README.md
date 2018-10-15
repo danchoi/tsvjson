@@ -9,10 +9,11 @@ input.tsv (whitespace is tabs):
     1	Dante	Inferno	poetry,literature
     2	Cervantes	Don Quixote	novels,literature
 
+Pipe `input.tsv` into `tsvjson`, giving `tsvjson` a list of field specs: 
+
     cat input.tsv | tsvjson id:num author title categories:list
     {"categories":["poetry","literature"],"author":"Dante","id":1,"title":"Inferno"}
     {"categories":["novels","literature"],"author":"Cervantes","id":1,"title":"Don Quixote"}
-
 
 The arguments to `tsvjson` is a list of field specs. A field spec is
 
@@ -38,4 +39,13 @@ If type is omitted, it is string.
 
     list:string:, 
     "" -> []
+
+Quote the field spec expression if you have shell characters in them (e.g.
+a semicolon):
+
+    cat input.tsv | tsvjson id:num author title 'categories:list:,;'
+
+Or you can quote the whole series of field specs:
+
+    cat input.tsv | 'tsvjson id:num author title categories:list:,;'
 
