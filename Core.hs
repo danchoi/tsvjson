@@ -66,23 +66,26 @@ splitOnAll seps v = foldr f [v] seps
 
 where type is 
 
-    string
+    string 
     num
+    number (long form of num ok)
     bool
-    list[:type[:seps]] -- defaults to string with comma sep
+    [type[:seps]] -- list type with separator
 
-If type is omitted, it is string.
+If [:type] is omitted, it is inferred to be string.
 
-    list:string:, 
+List types:
+
+    [string]
     red,green,blue -> ["red", "green", "blue"]
 
-    list:string:[,;]
+    [string:,;]
     red,green;blue -> ["red", "green", "blue"]
 
-    list:number:, 
+    [num]
     1,2,3 -> [1,2,3]
 
-    list:string:, 
+    [string:,]
     "" -> []
 -}
 
@@ -102,27 +105,27 @@ pFieldName = takeWhile1 (notInClass ": ")
 pFieldType :: Parser FType
 pFieldType = choice [
     string "string" *> pure FString
-  , string "num" *> pure FNumber
+  , string "num" *>  optional (string "ber") *> pure FNumber
   , string "bool" *> pure FBool
-  , string "list" *> pListType
+  , pListType
   ]
 
 pListType :: Parser FType
 pListType = 
+  char '[' *>
+  (
   FList 
-      <$> ( 
-            (char ':' *> pFieldType)
-            <|> 
-            pure FString
-          )
+      <$> pFieldType
       <*> (
 
             (char ':' *> 
-              (mkSeps <$> (takeWhile1 (notInClass " ")))
+              (mkSeps <$> (takeWhile1 (notInClass " ]")))
             )
             <|> 
             pure [","]
           )
+  )
+  <* char ']'
 
 mkSeps :: Text -> [Text]
 mkSeps = map T.singleton . T.unpack

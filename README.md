@@ -11,7 +11,7 @@ input.tsv (whitespace is tabs):
 
 Pipe `input.tsv` into `tsvjson`, giving `tsvjson` a list of field specs: 
 
-    cat input.tsv | tsvjson id:num author title categories:list
+    cat input.tsv | tsvjson id:num author title categories:[string]
     {"categories":["poetry","literature"],"author":"Dante","id":1,"title":"Inferno"}
     {"categories":["novels","literature"],"author":"Cervantes","id":1,"title":"Don Quixote"}
 
@@ -21,23 +21,26 @@ The arguments to `tsvjson` is a list of field specs. A field spec is
 
 where type is 
 
-    string
+    string 
     num
+    number (long form of num ok)
     bool
-    list[:type[:seps]] -- defaults to string with comma sep
+    [type[:seps]] -- list type with separator
 
-If type is omitted, it is string.
+If [:type] is omitted, it is inferred to be string.
 
-    list:string:, 
+List types:
+
+    [string]
     red,green,blue -> ["red", "green", "blue"]
 
-    list:string:,;
+    [string:,;]
     red,green;blue -> ["red", "green", "blue"]
 
-    list:number:, 
+    [num]
     1,2,3 -> [1,2,3]
 
-    list:string:, 
+    [string:,]
     "" -> []
 
 Quote the field spec expression if you have shell characters in them (e.g.

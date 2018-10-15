@@ -23,13 +23,22 @@ main = runTestTT . test $ [
   , "fieldspec 'bool'" ~:
       parse' "rating:bool" @?= FieldSpec "rating" FBool
 
-  , "fieldspec 'actors:string:,'" ~:
-      parse' "actors:list:string:," 
+  , "fieldspec 'actors:[string]'" ~:
+      parse' "actors:[string]" 
           @?= FieldSpec "actors" (FList FString [","])
 
-  , "fieldspec 'actors'" ~:
-      parse' "actors:list" 
+  , "fieldspec 'actors:[string:,]'" ~:
+      parse' "actors:[string:,]" 
           @?= FieldSpec "actors" (FList FString [","])
+
+  , "fieldspec 'ratings:[num:,]'" ~:
+      parse' "ratings:[num:,]" 
+          @?= FieldSpec "ratings" (FList FNumber [","])
+
+  , "fieldspec 'ratings:[number:,]'" ~:
+      parse' "ratings:[number:,]" 
+          @?= FieldSpec "ratings" (FList FNumber [","])
+
 
   , "conv list" ~:
       conv (FList FString [","]) "red,green"
