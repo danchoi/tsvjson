@@ -30,7 +30,7 @@ If type is omitted, it is string.
     list:string:, 
     red,green,blue -> ["red", "green", "blue"]
 
-    list:string:[,;]
+    list:string:,;
     red,green;blue -> ["red", "green", "blue"]
 
     list:number:, 
