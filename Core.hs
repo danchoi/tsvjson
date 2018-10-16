@@ -42,11 +42,9 @@ conv _ "-" = Null
 conv _ "\\N" = Null
 conv FString v = String v
 conv FNumber v = Number (read . T.unpack $ v)
-conv FBool v = Bool $ case v of
+conv FBool v = Bool $ case T.toLower v of
                 "true" -> True
                 "t" -> True
-                "TRUE" -> True
-                "YES" -> True
                 "yes" -> True
                 "y" -> True
                 "1" -> True
@@ -90,7 +88,7 @@ List types:
 -}
 
 pFieldSpecs :: Parser [FieldSpec]
-pFieldSpecs = AT.sepBy1 pFieldSpec whiteSpace
+pFieldSpecs = skipSpace >> AT.sepBy1 pFieldSpec whiteSpace
 
 -- | at least one whitespace character "\t\n "
 whiteSpace :: Parser ()

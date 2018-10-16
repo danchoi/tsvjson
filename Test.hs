@@ -57,8 +57,15 @@ main = runTestTT . test $ [
 
   , "field specs tab separated" ~:
       parse_ pFieldSpecs "title\tratings:[number:,]" 
-      @?= 
-      [ FieldSpec "title" FString , FieldSpec "ratings" (FList FNumber [","]) ]
+      @?= [ FieldSpec "title" FString , FieldSpec "ratings" (FList FNumber [","]) ]
+
+  , "field specs, skip leading whitespace" ~:
+      parse_ pFieldSpecs "\ntitle\tdirector" 
+      @?= [ FieldSpec "title" FString, FieldSpec "director" FString ]
+
+  , "field specs, skip trailing whitespace" ~:
+      parse_ pFieldSpecs "title\tdirector\n " 
+      @?= [ FieldSpec "title" FString, FieldSpec "director" FString ]
   ]
 
 parse' :: Text -> FieldSpec
