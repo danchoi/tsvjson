@@ -64,7 +64,7 @@ main = runTestTT . test $ [
       @?= [ FieldSpec "title" FString, FieldSpec "director" FString ]
 
   , "field specs, skip trailing whitespace" ~:
-      parse_ pFieldSpecs "title\tdirector\n " 
+      parse_ pFieldSpecs "\ntitle\tdirector\n" 
       @?= [ FieldSpec "title" FString, FieldSpec "director" FString ]
   ]
 
