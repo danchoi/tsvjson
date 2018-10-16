@@ -31,6 +31,10 @@ main = runTestTT . test $ [
       parse' "actors:[string:,]" 
           @?= FieldSpec "actors" (FList FString [","])
 
+  , "fieldspec 'actors:[string:,;]'" ~:
+      parse' "actors:[string:,;]" 
+          @?= FieldSpec "actors" (FList FString [",",";"])
+
   , "fieldspec 'ratings:[num:,]'" ~:
       parse' "ratings:[num:,]" 
           @?= FieldSpec "ratings" (FList FNumber [","])
