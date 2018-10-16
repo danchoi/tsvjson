@@ -51,12 +51,14 @@ main = runTestTT . test $ [
       conv FString "" @?= Null
 
   , "field specs" ~:
-      parse_ pFieldSpecs "title ratings:[number:,]" 
+      parse_ pFieldSpecs "title  ratings:[number:,]" 
       @?= 
-      [ FieldSpec "title" FString
-      , FieldSpec "ratings" (FList FNumber [","])
-      ]
+      [ FieldSpec "title" FString , FieldSpec "ratings" (FList FNumber [","]) ]
 
+  , "field specs tab separated" ~:
+      parse_ pFieldSpecs "title\tratings:[number:,]" 
+      @?= 
+      [ FieldSpec "title" FString , FieldSpec "ratings" (FList FNumber [","]) ]
   ]
 
 parse' :: Text -> FieldSpec

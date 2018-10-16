@@ -90,11 +90,12 @@ List types:
 -}
 
 pFieldSpecs :: Parser [FieldSpec]
-pFieldSpecs = AT.sepBy1 pFieldSpec spaces
+pFieldSpecs = AT.sepBy1 pFieldSpec whiteSpace
 
-spaces :: Parser ()
-spaces = AT.space >> AT.skipSpace >> return ()
-
+-- | at least one whitespace character "\t\n "
+whiteSpace :: Parser ()
+whiteSpace = 
+    AT.takeWhile1 (AT.inClass "\t\n ") >> return ()
 
 pFieldSpec :: Parser FieldSpec
 pFieldSpec = 
@@ -107,7 +108,7 @@ pFieldSpec =
           )
 
 pFieldName :: Parser Text
-pFieldName = takeWhile1 (notInClass ": ")
+pFieldName = takeWhile1 (notInClass ": \t\n")
 
 pFieldType :: Parser FType
 pFieldType = choice [
