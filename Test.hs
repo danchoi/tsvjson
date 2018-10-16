@@ -43,7 +43,6 @@ main = runTestTT . test $ [
       parse' "ratings:[number:,]" 
           @?= FieldSpec "ratings" (FList FNumber [","])
 
-
   , "conv list" ~:
       conv (FList FString [","]) "red,green"
         @?= toJSON ["red", "green"]
@@ -51,8 +50,6 @@ main = runTestTT . test $ [
   , "conv null" ~:
       conv FString "" @?= Null
   ]
-
-
 
 parse' :: Text -> FieldSpec
 parse' = either error id . parseOnly pFieldSpec
