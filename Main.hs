@@ -20,13 +20,13 @@ import Options.Applicative
 -}
 
 data Options = Options {
-      _skipHeader :: Bool
+      _debugSpec :: Bool
     , _fieldSpecs :: [FieldSpec]
     }
 
 pOptions :: Parser Options
 pOptions = Options
-    <$> switch (short 'H' <> help "Skip header row")
+    <$> switch (short 'd' <> help "Just debug spec and exit")
     <*> (
           concat <$> 
             many (argument readFieldSpec (metavar "[FIELDSPEC..]"))
@@ -39,19 +39,21 @@ pOpts = info (helper <*> pOptions)
 
 readFieldSpec :: ReadM [FieldSpec]
 readFieldSpec = eitherReader $ \s -> 
-    case AT.parseOnly (AT.sepBy1 pFieldSpec AT.skipSpace) (T.pack s) of
+    case AT.parseOnly pFieldSpecs (T.pack s) of
       Right x -> Right x
       Left err -> Left err
-      
+
 
 main :: IO ()
 main = do
     Options{..} <- execParser pOpts
-    xs <- (map (TL.splitOn "\t") . TL.lines) <$> TL.getContents
-    let xs' :: [[TL.Text]]
-        xs' = if _skipHeader then tail xs else xs
-    let rs :: [Value]
-        rs = map (toObject _fieldSpecs . map TL.toStrict) xs'
-    mapM_ (BL8.putStrLn . encode) rs
+    if _debugSpec
+    then
+      mapM_ print _fieldSpecs
+    else do
+      xs <- (map (TL.splitOn "\t") . TL.lines) <$> TL.getContents
+      let rs :: [Value]
+          rs = map (toObject _fieldSpecs . map TL.toStrict) xs
+      mapM_ (BL8.putStrLn . encode) rs
 
 

@@ -89,6 +89,13 @@ List types:
     "" -> []
 -}
 
+pFieldSpecs :: Parser [FieldSpec]
+pFieldSpecs = AT.sepBy1 pFieldSpec spaces
+
+spaces :: Parser ()
+spaces = AT.space >> AT.skipSpace >> return ()
+
+
 pFieldSpec :: Parser FieldSpec
 pFieldSpec = 
     FieldSpec 
@@ -129,5 +136,4 @@ pListType =
 
 mkSeps :: Text -> [Text]
 mkSeps = map T.singleton . T.unpack
-
 

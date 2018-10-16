@@ -2,7 +2,7 @@ module Main where
 import Test.HUnit
 import Core
 import Data.Text (Text)
-import Data.Attoparsec.Text (parseOnly)
+import Data.Attoparsec.Text (parseOnly, Parser)
 import Data.Aeson (toJSON, Value(..))
 
 
@@ -49,7 +49,20 @@ main = runTestTT . test $ [
 
   , "conv null" ~:
       conv FString "" @?= Null
+
+  , "field specs" ~:
+      parse_ pFieldSpecs "title ratings:[number:,]" 
+      @?= 
+      [ FieldSpec "title" FString
+      , FieldSpec "ratings" (FList FNumber [","])
+      ]
+
   ]
 
 parse' :: Text -> FieldSpec
 parse' = either error id . parseOnly pFieldSpec
+
+
+parse_ :: Parser a -> Text -> a
+parse_ parser = either error id . parseOnly parser
+
